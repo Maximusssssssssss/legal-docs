@@ -1,5 +1,6 @@
-const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
-const MODEL = process.env.OLLAMA_MODEL || 'qwen2.5:3b';
+const CF_ACCOUNT_ID = process.env.CF_ACCOUNT_ID || '';
+const CF_API_TOKEN = process.env.CF_API_TOKEN || '';
+const MODEL = '@cf/meta/llama-3.3-70b-instruct-fp16';
 
 interface AIResponse {
   text: string;
@@ -12,7 +13,7 @@ export async function askAI(
   messages?: { role: string; content: string }[]
 ): Promise<AIResponse> {
   try {
-    const chatMessages = [];
+    const chatMessages: { role: string; content: string }[] = [];
 
     chatMessages.push({
       role: 'system',
@@ -36,29 +37,32 @@ export async function askAI(
       content: prompt,
     });
 
-    const response = await fetch(`${OLLAMA_URL}/api/chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: chatMessages,
-        stream: false,
-        options: {
-          temperature: 0.3,
-          num_predict: 2000,
+    const response = await fetch(
+      `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/ai/v1/chat/completions`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${CF_API_TOKEN}`,
         },
-      }),
-    });
+        body: JSON.stringify({
+          model: MODEL,
+          messages: chatMessages,
+          temperature: 0.3,
+          max_tokens: 2000,
+        }),
+      }
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
-      return { text: '', error: `Ollama error: ${response.status} ${errorText}` };
+      return { text: '', error: `AI error: ${response.status} ${errorText}` };
     }
 
     const data = await response.json();
-    return { text: data.message?.content || '' };
+    return { text: data.choices?.[0]?.message?.content || '' };
   } catch (error) {
-    return { text: '', error: `Не удалось подключиться к Ollama. Убедитесь что Ollama запущен (ollama serve).` };
+    return { text: '', error: `Не удалось подключиться к AI сервису. Попробуйте позже.` };
   }
 }
 
