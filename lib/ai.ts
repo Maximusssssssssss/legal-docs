@@ -1,6 +1,6 @@
 const CF_ACCOUNT_ID = process.env.CF_ACCOUNT_ID || '';
 const CF_API_TOKEN = process.env.CF_API_TOKEN || '';
-const MODEL = '@cf/meta/llama-3.3-70b-instruct-fp16';
+const MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 
 interface AIResponse {
   text: string;
