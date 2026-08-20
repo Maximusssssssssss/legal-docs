@@ -15,8 +15,9 @@ export async function POST(request: NextRequest) {
       }
 
       const lastUserMessage = [...messages].reverse().find((m: { role: string }) => m.role === 'user');
+      const assistantMessages = messages.filter((m: { role: string }) => m.role === 'assistant');
 
-      if (lastUserMessage && !isDocumentRelated(lastUserMessage.content)) {
+      if (lastUserMessage && assistantMessages.length === 0 && !isDocumentRelated(lastUserMessage.content)) {
         return NextResponse.json({
           response: 'Я помогаю создавать юридические документы для ИП и самозанятых. Пожалуйста, опишите какой документ вам нужен:\n\n• Договор купли-продажи\n• Договор оказания услуг\n• Расписка\n• Доверенность\n• Заявление\n• И другие юридические документы',
         });
