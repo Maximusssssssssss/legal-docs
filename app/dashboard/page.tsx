@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Footer from '@/components/Footer';
 import { ArrowLeft, FileText, Download, Trash2, Calendar, FolderOpen } from 'lucide-react';
 import { getDocuments } from '@/lib/supabase';
 
@@ -152,6 +153,7 @@ export default function DashboardPage() {
           </div>
         )}
       </main>
+      <Footer />
     </div>
   );
 }

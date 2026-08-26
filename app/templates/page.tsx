@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import TemplateCard from '@/components/TemplateCard';
 import DocumentForm from '@/components/DocumentForm';
+import Footer from '@/components/Footer';
 import { documentTemplates } from '@/lib/templates';
 import { DocumentTemplate } from '@/types';
 import { ArrowLeft, FileText, Search } from 'lucide-react';
@@ -106,6 +107,14 @@ export default function TemplatesPage() {
           </Link>
         </div>
       </main>
+
+      {selectedTemplate && (
+        <DocumentForm
+          template={selectedTemplate}
+          onClose={() => setSelectedTemplate(null)}
+        />
+      )}
+      <Footer />
 
       {selectedTemplate && (
         <DocumentForm

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import FileUploader from '@/components/FileUploader';
+import Footer from '@/components/Footer';
 import { FileText, ArrowLeft, Check } from 'lucide-react';
 
 export default function UploadPage() {
@@ -72,6 +73,7 @@ export default function UploadPage() {
           </ol>
         </div>
       </main>
+      <Footer />
     </div>
   );
 }

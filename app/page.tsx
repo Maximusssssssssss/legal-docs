@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Footer from '@/components/Footer';
 import { FileUp, FilePlus, FileText, Shield, Zap, Clock } from 'lucide-react';
 
 export default function Home() {
@@ -121,11 +122,7 @@ export default function Home() {
         </div>
       </main>
 
-      <footer className="border-t border-gray-200 mt-16">
-        <div className="max-w-6xl mx-auto px-4 py-8 text-center text-gray-500 text-sm">
-          © 2026 ДоксМастер. Сервис подготовки юридических документов для ИП и самозанятых.
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

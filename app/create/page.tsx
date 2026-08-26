@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import ChatAI from '@/components/ChatAI';
 import DocumentForm from '@/components/DocumentForm';
+import Footer from '@/components/Footer';
 import { documentTemplates } from '@/lib/templates';
 import { DocumentTemplate } from '@/types';
 import { ArrowLeft, FileText, FilePlus } from 'lucide-react';
@@ -130,6 +131,7 @@ export default function CreatePage() {
           />
         )}
       </main>
+      <Footer />
     </div>
   );
 }
