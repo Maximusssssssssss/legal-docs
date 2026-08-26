@@ -26,10 +26,8 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold text-gray-900 mb-3">Реквизиты</h4>
             <div className="text-sm text-gray-500 space-y-1">
-              <p>ИП _________________________</p>
+              <p>Самозанятый _________________________</p>
               <p>ИНН: _________________________</p>
-              <p>ОГРНИП: _________________________</p>
-              <p>Адрес: _________________________</p>
             </div>
           </div>
         </div>
