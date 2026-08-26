@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Footer from '@/components/Footer';
+import UserMenu from '@/components/UserMenu';
 import { FileUp, FilePlus, FileText, Shield, Zap, Clock } from 'lucide-react';
 
 export default function Home() {
@@ -21,9 +22,7 @@ export default function Home() {
             <Link href="/templates" className="text-gray-600 hover:text-gray-900 font-medium">
               Шаблоны
             </Link>
-            <Link href="/dashboard" className="text-gray-600 hover:text-gray-900 font-medium">
-              Мои документы
-            </Link>
+            <UserMenu />
           </nav>
         </div>
       </header>
