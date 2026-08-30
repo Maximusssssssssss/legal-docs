@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Loader2, Download } from 'lucide-react';
 import { ChatMessage } from '@/types';
 import { exportDocument, makeDocumentFilename } from '@/lib/export';
+import { getExtractedData } from '@/lib/personData';
 
 interface ChatAIProps {
   onDocumentReady?: (data: Record<string, string>, templateId?: string) => void;
@@ -76,13 +77,14 @@ export default function ChatAI({ onDocumentReady }: ChatAIProps) {
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [...messages, userMessage].map(m => ({
-            role: m.role,
-            content: m.content,
-          })),
-          type: 'chat',
-        }),
+body: JSON.stringify({
+            messages: [...messages, userMessage].map(m => ({
+              role: m.role,
+              content: m.content,
+            })),
+            personData: getExtractedData() || {},
+            type: 'chat',
+          }),
       });
 
       const data = await response.json();

@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     const { type } = body;
 
     if (type === 'chat') {
-      const { messages } = body;
+      const { messages, personData } = body;
 
       if (!messages || !Array.isArray(messages)) {
         return NextResponse.json({ error: 'Сообщения обязательны' }, { status: 400 });
@@ -26,6 +26,11 @@ export async function POST(request: NextRequest) {
       const systemMessage = `Ты - помощник по созданию юридических документов для ИП и самозанятых в России.
 Текущие доступные шаблоны:
 ${documentTemplates.map(t => `- ${t.name} (${t.description})`).join('\n')}
+${personData && typeof personData === 'object' && Object.keys(personData).length > 0
+  ? `
+Данные пользователя, извлечённые из загруженного документа (используй их при заполнении полей, не спрашивай их повторно, но проверяй при необходимости):
+${Object.entries(personData).filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`).join('\n')}`
+  : ''}
 
 Правила:
 1. Отвечай только на вопросы, связанные с юридическими документами

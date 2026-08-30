@@ -6,13 +6,20 @@ import TemplateCard from '@/components/TemplateCard';
 import DocumentForm from '@/components/DocumentForm';
 import Footer from '@/components/Footer';
 import { documentTemplates } from '@/lib/templates';
+import { getExtractedData, clearExtractedData, buildPrefill } from '@/lib/personData';
 import { DocumentTemplate } from '@/types';
-import { ArrowLeft, FileText, Search } from 'lucide-react';
+import { ArrowLeft, FileText, Search, UserCircle2, X } from 'lucide-react';
 
 export default function TemplatesPage() {
   const [selectedTemplate, setSelectedTemplate] = useState<DocumentTemplate | null>(null);
   const [filter, setFilter] = useState<'all' | 'ip' | 'selfemployed' | 'universal'>('all');
   const [search, setSearch] = useState('');
+  const [extractedData, setExtractedData] = useState<Record<string, string> | null>(() => getExtractedData());
+
+  const handleClearData = () => {
+    clearExtractedData();
+    setExtractedData(null);
+  };
 
   const filteredTemplates = documentTemplates.filter((t) => {
     if (filter !== 'all' && t.category !== filter) return false;
@@ -78,6 +85,46 @@ export default function TemplatesPage() {
           </div>
         </div>
 
+        {extractedData && (
+          <div className="mb-8 bg-green-50 border border-green-200 rounded-xl p-4">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <UserCircle2 className="w-6 h-6 text-green-700 flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-green-900">
+                    Данные из загруженного документа доступны
+                  </p>
+                  <p className="text-sm text-green-700">
+                    Будут автоматически подставлены в поля шаблона. Вы сможете их изменить.
+                  </p>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {Object.entries(extractedData)
+                      .filter(([, value]) => value)
+                      .map(([key, value]) => (
+                        <span
+                          key={key}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 bg-white border border-green-200 rounded-full text-xs text-green-800"
+                          title={value}
+                        >
+                          <span className="text-green-500">{key}:</span>
+                          <span className="font-medium">{value.length > 24 ? value.slice(0, 24) + '…' : value}</span>
+                        </span>
+                      ))}
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={handleClearData}
+                className="px-3 py-1.5 shrink-0 border border-green-300 text-green-700 text-sm font-medium rounded-lg hover:bg-green-100 flex items-center gap-1.5"
+                title="Удалить данные из загруженного документа"
+              >
+                <X className="w-4 h-4" />
+                Очистить
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredTemplates.map((template) => (
             <TemplateCard
@@ -111,17 +158,11 @@ export default function TemplatesPage() {
       {selectedTemplate && (
         <DocumentForm
           template={selectedTemplate}
+          prefilledData={buildPrefill(selectedTemplate, extractedData || {})}
           onClose={() => setSelectedTemplate(null)}
         />
       )}
       <Footer />
-
-      {selectedTemplate && (
-        <DocumentForm
-          template={selectedTemplate}
-          onClose={() => setSelectedTemplate(null)}
-        />
-      )}
     </div>
   );
 }

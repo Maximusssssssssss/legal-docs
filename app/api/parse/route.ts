@@ -3,6 +3,7 @@ import { extractText } from 'unpdf';
 import Tesseract from 'tesseract.js';
 import mammoth from 'mammoth';
 import WordExtractor from 'word-extractor';
+import { parseFieldsFromText } from '@/lib/parser';
 
 export async function POST(request: NextRequest) {
   try {
@@ -72,34 +73,4 @@ async function extractDocText(bytes: Uint8Array, mimeType: string): Promise<stri
   const extractor = new WordExtractor();
   const doc = await extractor.extract(buffer);
   return doc.getBody();
-}
-
-function parseFieldsFromText(text: string): Record<string, string> {
-  const fields: Record<string, string> = {};
-
-  const innMatch = text.match(/ИНН[\s:]*(\d{10,12})/i);
-  if (innMatch) fields['ИНН'] = innMatch[1];
-
-  const phoneMatch = text.match(/(\+7|8)[\s\-]?\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}/);
-  if (phoneMatch) fields['Телефон'] = phoneMatch[0];
-
-  const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-  if (emailMatch) fields['Email'] = emailMatch[0];
-
-  const passportMatch = text.match(/(\d{2}\s?\d{2}\s?\d{6})/);
-  if (passportMatch) fields['Паспорт'] = passportMatch[1];
-
-  const nameMatch = text.match(/(?:Ф\.?\s*И\.?\s*О\.?|ФИО|ф\.и\.о\.?)[\s:]+([А-ЯЁа-яё]+\s+[А-ЯЁа-яё]+\s+[А-ЯЁа-яё]+)/i);
-  if (nameMatch) fields['ФИО'] = nameMatch[1].trim();
-
-  const addressMatch = text.match(/(?:адрес|место жительства|место регистрации)[\s:]+([^\n,]{10,})/i);
-  if (addressMatch) fields['Адрес'] = addressMatch[1].trim();
-
-  const ogrnipMatch = text.match(/ОГРНИП[\s:]*(\d{15})/i);
-  if (ogrnipMatch) fields['ОГРНИП'] = ogrnipMatch[1];
-
-  const dateMatch = text.match(/(?:дата рождения|рождения)[\s:]+(\d{2}[\.\-\/]\d{2}[\.\-\/]\d{4})/i);
-  if (dateMatch) fields['Дата рождения'] = dateMatch[1];
-
-  return fields;
 }

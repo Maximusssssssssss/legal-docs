@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import { Upload, FileText, Check, Loader2, AlertCircle } from 'lucide-react';
 import { savePerson } from '@/lib/supabase';
+import { saveExtractedData } from '@/lib/personData';
 
 interface FileUploaderProps {
   onParsed?: (data: Record<string, string>) => void;
@@ -64,6 +65,7 @@ export default function FileUploader({ onParsed }: FileUploaderProps) {
 
       setResult(data.fields);
       onParsed?.(data.fields);
+      saveExtractedData(data.fields);
 
       try {
         await savePerson({
