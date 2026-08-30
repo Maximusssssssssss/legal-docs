@@ -103,7 +103,7 @@ export default function FileUploader({ onParsed }: FileUploaderProps) {
           type="file"
           id="file-upload"
           className="hidden"
-          accept=".pdf,.png,.jpg,.jpeg,.tiff"
+          accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.tiff"
           onChange={handleChange}
         />
         <label
@@ -118,7 +118,7 @@ export default function FileUploader({ onParsed }: FileUploaderProps) {
               Перетащите файл сюда или нажмите для выбора
             </p>
             <p className="text-sm text-gray-500 mt-1">
-              Поддерживаются: PDF, PNG, JPG, TIFF
+              Поддерживаются: PDF, DOC, DOCX, PNG, JPG, TIFF
             </p>
           </div>
         </label>

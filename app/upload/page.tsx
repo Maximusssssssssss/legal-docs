@@ -31,7 +31,7 @@ export default function UploadPage() {
             Извлечение данных из документа
           </h1>
           <p className="text-gray-600">
-            Загрузите PDF или скан документа, и ИИ автоматически извлечёт ФИО, ИНН, адрес и другие данные.
+            Загрузите PDF, DOC, DOCX или скан документа, и ИИ автоматически извлечёт ФИО, ИНН, адрес и другие данные.
           </p>
         </div>
 
@@ -68,7 +68,7 @@ export default function UploadPage() {
         <div className="mt-8 p-6 bg-blue-50 border border-blue-200 rounded-xl">
           <h3 className="font-semibold text-blue-900 mb-2">Как это работает?</h3>
           <ol className="text-sm text-blue-800 space-y-2">
-            <li>1. Загрузите PDF или изображение документа</li>
+            <li>1. Загрузите PDF, DOC, DOCX или изображение документа</li>
             <li>2. ИИ распознает текст (OCR) и структурирует данные</li>
             <li>3. ФИО, ИНН, адрес и другие данные будут автоматически извлечены</li>
             <li>4. Используйте данные для создания новых документов</li>

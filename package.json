@@ -11,12 +11,14 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.109.0",
     "lucide-react": "^1.33.0",
+    "mammoth": "^1.12.2",
     "next": "16.3.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "tesseract.js": "^7.0.0",
     "unpdf": "^1.7.0",
-    "uuid": "^14.0.2"
+    "uuid": "^14.0.2",
+    "word-extractor": "^1.0.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -24,6 +26,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/uuid": "^10.0.0",
+    "@types/word-extractor": "^1.0.6",
     "eslint": "^9",
     "eslint-config-next": "16.3.1",
     "tailwindcss": "^4",
