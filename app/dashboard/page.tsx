@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import { ArrowLeft, FileText, Download, Trash2, Calendar, FolderOpen } from 'lucide-react';
+import { ArrowLeft, FileText, Download, Trash2, Calendar, FolderOpen, Loader2 } from 'lucide-react';
 import { getDocuments } from '@/lib/supabase';
+import { exportDocument, makeDocumentFilename } from '@/lib/export';
 
 interface SavedDocument {
   id: string;
@@ -18,6 +19,7 @@ interface SavedDocument {
 export default function DashboardPage() {
   const [documents, setDocuments] = useState<SavedDocument[]>([]);
   const [loading, setLoading] = useState(true);
+  const [exportingId, setExportingId] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadDocuments() {
@@ -52,16 +54,17 @@ export default function DashboardPage() {
     localStorage.setItem('generatedDocuments', JSON.stringify(updated));
   };
 
-  const downloadDocument = (doc: SavedDocument) => {
-    const blob = new Blob([doc.content], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${doc.title}_${new Date(doc.createdAt).toLocaleDateString('ru-RU')}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+  const downloadDocument = async (doc: SavedDocument, format: 'docx' | 'pdf') => {
+    setExportingId(`${doc.id}-${format}`);
+    try {
+      const filename = makeDocumentFilename(doc.title);
+      await exportDocument(doc.content, format, filename);
+    } catch (err) {
+      console.error('Export error:', err);
+      alert('Не удалось скачать документ. Попробуйте ещё раз.');
+    } finally {
+      setExportingId(null);
+    }
   };
 
   return (
@@ -135,11 +138,30 @@ export default function DashboardPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => downloadDocument(doc)}
-                      className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      title="Скачать"
+                      onClick={() => downloadDocument(doc, 'docx')}
+                      disabled={!!exportingId}
+                      className="px-2.5 py-1.5 text-gray-600 text-xs font-medium border border-gray-300 rounded-lg hover:text-green-700 hover:border-green-500 hover:bg-green-50 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                      title="Скачать в DOC"
                     >
-                      <Download className="w-5 h-5" />
+                      {exportingId === `${doc.id}-docx` ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Download className="w-3.5 h-3.5" />
+                      )}
+                      DOC
+                    </button>
+                    <button
+                      onClick={() => downloadDocument(doc, 'pdf')}
+                      disabled={!!exportingId}
+                      className="px-2.5 py-1.5 text-gray-600 text-xs font-medium border border-gray-300 rounded-lg hover:text-red-700 hover:border-red-400 hover:bg-red-50 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                      title="Скачать в PDF"
+                    >
+                      {exportingId === `${doc.id}-pdf` ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Download className="w-3.5 h-3.5" />
+                      )}
+                      PDF
                     </button>
                     <button
                       onClick={() => deleteDocument(doc.id)}

@@ -5,6 +5,7 @@ import { X, Loader2, Download, Check, AlertCircle } from 'lucide-react';
 import { DocumentTemplate, DocumentField } from '@/types';
 import { validateINN } from '@/lib/validators';
 import { saveDocument } from '@/lib/supabase';
+import { exportDocument, makeDocumentFilename } from '@/lib/export';
 
 interface DocumentFormProps {
   template: DocumentTemplate;
@@ -105,18 +106,15 @@ export default function DocumentForm({ template, prefilledData = {}, onClose }: 
     }
   };
 
-  const downloadDocument = () => {
+  const downloadDocument = async (format: 'docx' | 'pdf') => {
     if (!generatedDoc) return;
 
-    const blob = new Blob([generatedDoc], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${template.name}_${new Date().toLocaleDateString('ru-RU')}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    try {
+      const filename = makeDocumentFilename(template.name);
+      await exportDocument(generatedDoc, format, filename);
+    } catch (err) {
+      setValidationErrors([err instanceof Error ? err.message : 'Ошибка экспорта']);
+    }
   };
 
   if (generatedDoc) {
@@ -139,11 +137,18 @@ export default function DocumentForm({ template, prefilledData = {}, onClose }: 
           </div>
           <div className="p-4 border-t border-gray-200 flex justify-end gap-3">
             <button
-              onClick={downloadDocument}
+              onClick={() => downloadDocument('docx')}
               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
             >
               <Download className="w-4 h-4" />
-              Скачать
+              Скачать DOC
+            </button>
+            <button
+              onClick={() => downloadDocument('pdf')}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
+            >
+              <Download className="w-4 h-4" />
+              Скачать PDF
             </button>
             <button
               onClick={onClose}

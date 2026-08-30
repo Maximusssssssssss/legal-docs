@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Loader2 } from 'lucide-react';
+import { Send, Bot, User, Loader2, Download } from 'lucide-react';
 import { ChatMessage } from '@/types';
+import { exportDocument, makeDocumentFilename } from '@/lib/export';
 
 interface ChatAIProps {
   onDocumentReady?: (data: Record<string, string>, templateId?: string) => void;
@@ -19,10 +20,38 @@ export default function ChatAI({ onDocumentReady }: ChatAIProps) {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [exportingId, setExportingId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const looksLikeDocument = (content: string) => {
+    const keywords = [
+      'ДОГОВОР', 'СОГЛАШЕНИЕ', 'РАСПИСКА', 'ДОВЕРЕННОСТЬ',
+      'ЗАЯВЛЕНИЕ', 'АКТ', 'УСТАВ', 'ПРИКАЗ', 'ПРОТОКОЛ',
+      'КОНТРАКТ', 'ПРЕТЕНЗИЯ', 'ОФЕРТА',
+    ];
+    return keywords.some(k => content.includes(k));
+  };
+
+  const handleDocumentDownload = async (message: ChatMessage, format: 'docx' | 'pdf') => {
+    setExportingId(`${message.id}-${format}`);
+    try {
+      const filename = makeDocumentFilename('документ');
+      await exportDocument(message.content, format, filename);
+    } catch (err) {
+      const errorMessage: ChatMessage = {
+        id: `${message.id}-export-error`,
+        role: 'assistant',
+        content: `Ошибка экспорта: ${err instanceof Error ? err.message : 'Неизвестная ошибка'}.`,
+        timestamp: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setExportingId(null);
+    }
   };
 
   useEffect(() => {
@@ -98,14 +127,44 @@ export default function ChatAI({ onDocumentReady }: ChatAIProps) {
                 <Bot className="w-4 h-4 text-blue-600" />
               </div>
             )}
-            <div
-              className={`max-w-[80%] p-3 rounded-lg whitespace-pre-wrap ${
-                message.role === 'user'
-                  ? 'bg-blue-600 text-white rounded-br-none'
-                  : 'bg-gray-100 text-gray-900 rounded-bl-none'
-              }`}
-            >
-              {message.content}
+            <div className={message.role === 'assistant' ? 'max-w-[80%] flex flex-col gap-2' : ''}>
+              <div
+                className={`p-3 rounded-lg whitespace-pre-wrap ${
+                  message.role === 'user'
+                    ? 'bg-blue-600 text-white rounded-br-none'
+                    : 'bg-gray-100 text-gray-900 rounded-bl-none'
+                }`}
+              >
+                {message.content}
+              </div>
+              {message.role === 'assistant' && looksLikeDocument(message.content) && (
+                <div className="flex gap-2 pl-3">
+                  <button
+                    onClick={() => handleDocumentDownload(message, 'docx')}
+                    disabled={!!exportingId}
+                    className="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 text-xs font-medium rounded-lg hover:bg-gray-50 disabled:opacity-50 flex items-center gap-1.5"
+                  >
+                    {exportingId === `${message.id}-docx` ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Download className="w-3.5 h-3.5" />
+                    )}
+                    Скачать DOC
+                  </button>
+                  <button
+                    onClick={() => handleDocumentDownload(message, 'pdf')}
+                    disabled={!!exportingId}
+                    className="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 text-xs font-medium rounded-lg hover:bg-gray-50 disabled:opacity-50 flex items-center gap-1.5"
+                  >
+                    {exportingId === `${message.id}-pdf` ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Download className="w-3.5 h-3.5" />
+                    )}
+                    Скачать PDF
+                  </button>
+                </div>
+              )}
             </div>
             {message.role === 'user' && (
               <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
